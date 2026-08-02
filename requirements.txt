@@ -1,0 +1,15 @@
+# Core (no internet required to run the demo pipeline)
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+matplotlib>=3.7
+
+# Optional -- enables the real LSTM/Transformer architectures in models.py.
+# Without torch, models.py automatically falls back to a scikit-learn MLP
+# so the full pipeline still runs end-to-end.
+torch>=2.1
+
+# Optional -- for working with qlib / FinRL style pipelines mentioned
+# in the project brief, or plugging in real LOBSTER/ITCH data loaders.
+# qlib
+# finrl
