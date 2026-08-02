@@ -6,6 +6,7 @@
 
 *Feature engineering → sequence modeling → quantile signal extraction → cost-aware backtesting*
 
+[![CI](https://github.com/Kartik281204/lob-alpha/actions/workflows/ci.yml/badge.svg)](https://github.com/Kartik281204/lob-alpha/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-LSTM%20%7C%20Transformer-EE4C2C.svg)](https://pytorch.org/)
 [![scikit--learn](https://img.shields.io/badge/scikit--learn-fallback%20%2B%20baseline-F7931E.svg)](https://scikit-learn.org/)
@@ -106,10 +107,17 @@ rebate capture) rather than stopping at signal discovery. See
 ## Quick Start
 
 ```bash
-git clone https://github.com/<your-username>/lob-alpha.git
+git clone https://github.com/Kartik281204/lob-alpha.git
 cd lob-alpha
-pip install -r requirements.txt   # add torch to unlock the real LSTM/Transformer
+pip install -r requirements.txt          # core -- runs the full pipeline offline
 python -m src.pipeline
+```
+
+Want the real LSTM/Transformer instead of the scikit-learn fallback?
+
+```bash
+pip install -r requirements-torch.txt    # core + PyTorch
+python -m src.pipeline                   # auto-detected, no code changes needed
 ```
 
 Runs in a few seconds on CPU with the default 20,000-step simulation and
@@ -185,15 +193,20 @@ Event-driven, with:
 
 ```
 lob-alpha/
+├── .github/workflows/
+│   └── ci.yml             # lint + test on every push (Python 3.10-3.12, + torch job)
 ├── src/
-│   ├── simulate_lob.py   # synthetic LOB generator — swap for a real data loader
-│   ├── features.py       # order imbalance · spread dynamics · depth ratios · trade flow
-│   ├── models.py         # LSTM / Transformer (PyTorch) + MLP / Ridge fallback
-│   ├── backtest.py       # event-driven backtest — fees + market-impact slippage
-│   └── pipeline.py       # end-to-end runner
+│   ├── simulate_lob.py    # synthetic LOB generator — swap for a real data loader
+│   ├── features.py        # order imbalance · spread dynamics · depth ratios · trade flow
+│   ├── models.py           # LSTM / Transformer (PyTorch) + MLP / Ridge fallback
+│   ├── backtest.py         # event-driven backtest — fees + market-impact slippage
+│   └── pipeline.py          # end-to-end runner
+├── tests/                   # pytest suite (see Testing & CI below)
 ├── outputs/
-│   └── results.png       # equity curves + prediction diagnostic
-├── requirements.txt
+│   └── results.png          # equity curves + prediction diagnostic
+├── requirements.txt          # core deps
+├── requirements-torch.txt    # core + PyTorch (real LSTM/Transformer)
+├── requirements-dev.txt      # core + pytest/ruff
 └── README.md
 ```
 
@@ -208,6 +221,24 @@ lob-alpha/
       out-learn the linear baseline
 - [ ] **`qlib` / `FinRL` integration** — multi-asset backtesting and live
       trading simulation on top of the existing feature matrix
+
+---
+
+## Testing & CI
+
+46 tests across five suites — simulator invariants (no crossed book, reproducibility,
+positivity), feature bounds and causality, model fit/predict contracts, backtest
+cost mechanics, and an end-to-end pipeline smoke test — run automatically on
+every push via [GitHub Actions](.github/workflows/ci.yml) across Python 3.10–3.12,
+plus a separate job that installs real PyTorch and re-runs the model tests
+against the actual `LSTMAlpha`/`TransformerAlpha` classes.
+
+```bash
+pip install -r requirements-dev.txt
+ruff check src tests        # lint
+pytest -v                   # full suite
+pytest -m "not slow" -v     # skip the end-to-end pipeline smoke test
+```
 
 ---
 

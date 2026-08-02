@@ -1,0 +1,5 @@
+# Optional -- unlocks the real LSTMAlpha / TransformerAlpha architectures
+# in src/models.py. Without this, models.py automatically falls back to a
+# tuned scikit-learn MLP so the pipeline still runs identically.
+-r requirements.txt
+torch>=2.1

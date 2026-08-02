@@ -1,0 +1,4 @@
+# Testing / linting -- not needed to run the pipeline itself.
+-r requirements.txt
+pytest>=7.4
+ruff>=0.4
